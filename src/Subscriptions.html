@@ -6,8 +6,8 @@
     <title>Subscription Plans</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <script>
-        const API_URL = 'http://0.0.0.0:8000/api';
-        //const API_URL = 'https://api.liteupper.com/api';
+        //const API_URL = 'http://0.0.0.0:8000/api';
+        const API_URL = 'https://api.liteupper.com/api';
 
         let selectedPlanId = null;
         let selectedPrice = null;
@@ -186,6 +186,15 @@
         function goBack() {
           window.history.back();
         }
+
+        function logout() {
+            let confirmation = confirm("Are you sure you want to logout?");
+            if (confirmation) {
+                localStorage.removeItem("token");  // If stored in localStorage
+                sessionStorage.removeItem("token");
+                window.location.href = "login.html"; 
+            }
+        }
     </script>
     <style>
         body {
@@ -273,6 +282,22 @@
             width: 100px;
             margin-bottom: 20px;
             border-radius: 5px;
+        }
+
+        .logout-button {
+            background-color: #6d0f53;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            margin-bottom: 20px;
+            margin-top: -50px;
+            border-radius: 5px;
+            justify-self: end;
         }
 
         .modal-content {
@@ -364,8 +389,11 @@
 </head>
 <body>
     <button onclick="goBack()" class="back-button">
-        <i class="fas fa-arrow-left"></i> Back
-      </button>
+     <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <button onclick="logout()" class="logout-button">
+     logout
+    </button>
     <h2>Select a Subscription Plan</h2>
     <div id="plans-container"></div>
     <h2>Your Active Subscription</h2>

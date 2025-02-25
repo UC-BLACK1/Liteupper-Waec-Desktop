@@ -5,31 +5,38 @@
   "main": "src/main.js",
   "dependencies": {
     "cra-template": "1.2.0",
-    "electron": "^34.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-native-web": "^0.19.13",
     "react-scripts": "5.0.1"
   },
   "build": {
-  "appId": "com.liteupper.desktop",
-  "productName": "LiteUpper",
-  "win": {
-    "icon": "icon.ico"
+    "appId": "com.liteupper.desktop",
+    "productName": "LiteUpper",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "src/icon.ico",
+      "target": ["nsis", "portable"]
+    },
+    "mac": {
+      "icon": "src/icon.icns",
+      "target": ["dmg", "zip"]
+    },
+    "linux": {
+      "icon": "src/icon.png",
+      "target": ["AppImage", "deb", "rpm"]
+    }
   },
-  "mac": {
-    "icon": "icon.icns"
-  },
-  "linux": {
-    "icon": "icon.png"
-  }
-},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron": "electron ."
+    "electron": "electron .",
+    "package": "electron-builder",
+    "package:win": "electron-builder --win",
+    "package:mac": "electron-builder --mac",
+    "package:linux": "electron-builder --linux"
   },
   "eslintConfig": {
     "extends": [
@@ -48,5 +55,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^34.2.0"
   }
 }
