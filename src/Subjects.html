@@ -134,7 +134,7 @@
       <h1 id="exam-name">WAEC Subjects</h1>
     </div>
     <div id="subjects-container">
-      <!-- Subjects will be dynamically inserted here -->
+      <p id="loading-message">Loading subjects...</p>
     </div>
   </div>
 
@@ -174,6 +174,7 @@
 
     async function fetchWAECSubjects() {
       const token = checkAuthentication();
+      const loadingMessage = document.getElementById('loading-message');
       try {
         const response = await fetch(`${API_URL}/waec-subjects/`, {
           method: 'GET',
@@ -188,6 +189,8 @@
         if (!response.ok) {
           throw new Error(data.error || 'Failed to load subjects.');
         }
+
+        loadingMessage.style.display = 'none';
 
         // Set exam name
         document.getElementById('exam-name').innerText = data.exam_name;
@@ -214,6 +217,7 @@
           subjectsContainer.innerHTML = '<p class="no-data">No subjects available for WAEC exam.</p>';
         }
       } catch (error) {
+        loadingMessage.style.display = 'none';
         document.getElementById('subjects-container').innerHTML = `<p class="error">${error.message}</p>`;
       }
     }

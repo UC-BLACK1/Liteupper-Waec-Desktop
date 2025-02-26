@@ -42,6 +42,7 @@
         }
 
         async function fetchSubscriptionPlans() {
+            const loadingMessage = document.getElementById('loading-message');
             try {
                 const response = await fetch(`${API_URL}/subscription-plans/`, {
                     method: "GET",
@@ -52,6 +53,7 @@
                 });
 
                 if (!response.ok) throw new Error("Failed to fetch subscription plans");
+                loadingMessage.style.display = 'none';
 
                 const data = await response.json();
                 const plansContainer = document.getElementById("plans-container");
@@ -63,14 +65,13 @@
                 let hasActivePlan = false;
 
                 // Display active subscription plan (if exists)
-                if (data.active_subscription) {
-                    const activePlan = data.active_subscription;
+                if (data.active_plan) {
+                    const activePlan = data.active_plan;
                     activePlanContainer.innerHTML = `
                         <div class="active-plan">
                             <h3>Active Subscription</h3>
                             <p><strong>Plan:</strong> ${activePlan.month} Month(s)</p>
                             <p><strong>Price:</strong> ${activePlan.currency_symbol}${activePlan.price}</p>
-                            <p><strong>Start Date:</strong> ${activePlan.start_date}</p>
                             <p><strong>End Date:</strong> ${activePlan.end_date}</p>
                         </div>
                     `;
@@ -92,8 +93,12 @@
                 });
 
             } catch (error) {
+                loadingMessage.style.display = 'none';
                 console.error("Error fetching plans:", error);
-                alert("Failed to load subscription plans.");
+                let retry = confirm("Failed to load subscription plans. check your network and try again");
+                if (retry) {
+                    location.reload();
+                }
             }
         }
 
@@ -119,12 +124,6 @@
 
             let paymentTimedOut = false;
             
-            // Set a timeout for 30 seconds
-            const paymentTimeout = setTimeout(() => {
-                paymentTimedOut = true;
-                alert("Payment is taking too long. Please try again later.");
-                closeModal();
-            }, 30000); // 30 seconds
 
             try {
                 let handler = PaystackPop.setup({
@@ -133,8 +132,6 @@
                     amount: selectedPrice * 100,
                     currency: selectedCurrency,
                     callback: function (response) {
-                        if (paymentTimedOut) return;
-                        clearTimeout(paymentTimeout); // Stop the timeout
                         processPayment(response.reference);
                     },
                     onClose: function () {
@@ -153,15 +150,20 @@
         }
 
 
-        async function processPayment(reference) {
+        async function processPayment() {
             try {
+                
+                if (!selectedPlanId || !selectedPrice) {
+                    alert("Invalid plan selection.");
+                    return;
+                }
                 const response = await fetch(`${API_URL}/subscribe/${selectedPlanId}/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token.access}`
                     },
-                    body: JSON.stringify({ reference })
+                    body: JSON.stringify({ price: selectedPrice })
                 });
 
                 const data = await response.json();
@@ -184,14 +186,14 @@
         };
 
         function goBack() {
-          window.history.back();
+            window.location.href = "Subjects.html"; 
         }
 
         function logout() {
             let confirmation = confirm("Are you sure you want to logout?");
             if (confirmation) {
-                localStorage.removeItem("token");  // If stored in localStorage
-                sessionStorage.removeItem("token");
+                localStorage.removeItem("authToken");  // If stored in localStorage
+                sessionStorage.removeItem("authToken");
                 window.location.href = "login.html"; 
             }
         }
@@ -395,7 +397,7 @@
      logout
     </button>
     <h2>Select a Subscription Plan</h2>
-    <div id="plans-container"></div>
+    <div id="plans-container"><p id="loading-message">Loading plans...</p></div>
     <h2>Your Active Subscription</h2>
     <div id="active-plan-container"></div>
 

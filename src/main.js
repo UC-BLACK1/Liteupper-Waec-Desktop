@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow;
 let splashScreen;
@@ -32,6 +33,8 @@ app.on('ready', () => {
 
   mainWindow.loadFile(path.join(__dirname, 'Subjects.html'));
 
+  autoUpdater.checkForUpdatesAndNotify();
+
   // Wait for the main window to finish loading before hiding splash
   mainWindow.webContents.once('did-finish-load', () => {
     setTimeout(() => {
@@ -39,6 +42,15 @@ app.on('ready', () => {
       mainWindow.show();
     }, 2000); // Ensures splash is visible for at least 2s
   });
+});
+
+autoUpdater.on("update-available", () => {
+  console.log("Update available! Downloading...");
+});
+
+autoUpdater.on("update-downloaded", () => {
+  console.log("Update downloaded. Installing...");
+  autoUpdater.quitAndInstall();
 });
 
 app.on('window-all-closed', () => {
